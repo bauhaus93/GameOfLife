@@ -1,0 +1,10 @@
+[package]
+name = "game_of_life"
+version = "0.1.0"
+authors = ["Jakob Fischer <JakobFischer93@gmail.com>"]
+
+[dependencies]
+rand = "0.3"
+allegro = "0.0.29"
+allegro_primitives = "0.0.29"
+allegro_font = "0.0.29"

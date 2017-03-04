@@ -2,8 +2,10 @@ use allegro::*;
 use allegro_primitives::*;
 use allegro_font::*;
 
+use draw_data::DrawData;
+
 pub trait Drawable {
-    fn draw(&self, primitives: &PrimitivesAddon, boundary: (i32, i32));
+    fn draw(&self, primitives: &PrimitivesAddon, draw_data: &DrawData);
 }
 
 pub fn initalize_allegro(width: i32, height: i32, update_frequency: i32) -> Result<(Core, Display, EventQueue, Timer, PrimitivesAddon, FontAddon, Font), String> {

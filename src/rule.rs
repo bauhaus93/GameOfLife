@@ -15,8 +15,8 @@ impl Rule {
         for c in rule.chars() {
             match c {
                 '/' if !found_slash => found_slash = true,
-                e @ '0'...'9' if !found_slash => survive.push(e.to_digit(10).unwrap() as u8),
-                e @ '0'...'9' if found_slash => birth.push(e.to_digit(10).unwrap() as u8),
+                e @ '0'...'8' if !found_slash => survive.push(e.to_digit(10).unwrap() as u8),
+                e @ '0'...'8' if found_slash => birth.push(e.to_digit(10).unwrap() as u8),
                 e => return Err(format!("Invalid char '{}' in rule \"{}\"", e, rule))
             }
         }

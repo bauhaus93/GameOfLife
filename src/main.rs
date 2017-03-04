@@ -6,21 +6,20 @@ extern crate rand;
 mod cellular_automata;
 mod vector2;
 mod utility;
-mod rules;
+mod rule;
 
 use allegro::Color;
 use allegro_font::{ FontAlign, FontDrawing };
 
 use cellular_automata::CellularAutomata;
 use utility::{ initalize_allegro, Drawable };
-use rules::{ rule_1, rule_2, rule_3, rule_4 };
-
+use rule::Rule;
 
 fn main() {
     const WIDTH: i32 = 800;
     const HEIGHT: i32 = 800;
 
-    let result = initalize_allegro(WIDTH, HEIGHT, 20);
+    let result = initalize_allegro(WIDTH, HEIGHT, 15);
     let (core, display, event_queue, timer, primitives_addon, font_addon, font) = match result {
         Ok(e) => e,
         Err(e) => {
@@ -29,13 +28,15 @@ fn main() {
         }
     };
 
-    let mut automata = CellularAutomata::new((300, 300));
-    automata.add_rule(rule_1);
-    automata.add_rule(rule_2);
-    automata.add_rule(rule_3);
-    automata.add_rule(rule_4);
+    let mut automata = match CellularAutomata::new((200, 200), "23/3") {
+        Ok(a) => a,
+        Err(s) => {
+            println!("Could not create automata: {}", s);
+            return;
+        }
+    };
 
-    //automata.add_blinker((5, 5));
+    //automata.add_blinker((10, 10));
     //automata.add_r_pentomimo((50, 50));
     automata.randomize(0.3);
 
@@ -48,7 +49,8 @@ fn main() {
         if redraw && event_queue.is_empty() {
             core.clear_to_color(black);
             automata.draw(&primitives_addon, (WIDTH, HEIGHT));
-            core.draw_text(&font, white, 5.0, 5.0, FontAlign::Left, &format!("ticks: {}", automata.get_ticks()));
+            core.draw_text(&font, white, 5.0, 5.0, FontAlign::Left, &format!("ticks:   {}", automata.get_ticks()));
+            core.draw_text(&font, white, 5.0, 15.0, FontAlign::Left, &format!("ruleset: {}", automata.get_rule_string()));
             core.flip_display();
             redraw = false;
         }
@@ -65,9 +67,11 @@ fn main() {
                         }
                     },
                     allegro::KeyCode::F => {
+                        timer.stop();
                         for _ in 0..100 {
                             automata.tick();
                         }
+                        timer.start();
                     },
                     _ => {}
             },

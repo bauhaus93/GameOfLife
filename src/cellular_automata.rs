@@ -5,11 +5,12 @@ use rand;
 
 use vector2::Vector2;
 use utility::Drawable;
+use rule::Rule;
 
 pub struct CellularAutomata {
     size: (usize, usize),
     world: Vector2<bool>,
-    rules: Vec<fn(bool, u8) -> Option<bool>>,
+    rule: Rule,
     ticks: u64
 }
 
@@ -53,21 +54,30 @@ impl Drawable for CellularAutomata {
 
 impl CellularAutomata {
 
-    pub fn new(size: (usize, usize)) -> CellularAutomata {
-        CellularAutomata {
+    pub fn new(size: (usize, usize), rule_string: &str) -> Result<CellularAutomata, String> {
+
+        let rule = match Rule::new(rule_string.to_string()) {
+            Ok(r) => r,
+            Err(s) => return Err(s)
+        };
+
+
+        let automata = CellularAutomata {
             size: size,
             world: Vector2::new(false, size),
-            rules: Vec::new(),
+            rule: rule,
             ticks: 0
-        }
-    }
+        };
 
-    pub fn add_rule(&mut self, func: fn(bool, u8) -> Option<bool>) {
-        self.rules.push(func);
+        Ok(automata)
     }
 
     pub fn get(&self, position: (usize, usize)) -> bool {
         self.world.get(position)
+    }
+
+    pub fn get_rule_string(&self) -> &str {
+        &self.rule.get_string()
     }
 
     pub fn count_neighbours(&self, position: (i32, i32)) -> u8 {
@@ -100,14 +110,9 @@ impl CellularAutomata {
                 let curr_cell = self.get((x, y));
                 let neighbours = self.count_neighbours((x as i32, y as i32));
 
-                for rule in &self.rules {
-                    let result = rule(curr_cell, neighbours);
-                    if result != None {
-                        *next_world.get_mut((x, y)) = result.unwrap();
-                        break;
-                    }
+                if self.rule.apply(curr_cell, neighbours) {
+                    *next_world.get_mut((x, y)) = true;
                 }
-
             }
         }
         self.world = next_world;
